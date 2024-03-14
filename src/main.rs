@@ -172,15 +172,11 @@ fn raw_to_g(data: i16) -> f32 {
     data as f32 / 2048.0
 }
 
-fn write_csv(stream: &mut impl Write, time: SystemTime, data: RawFlightData) -> io::Result<()> {
-    write!(
-        stream,
-        "{},",
-        time.duration_since(UNIX_EPOCH).unwrap().as_micros()
-    )?;
+fn write_csv(stream: &mut impl Write, data: RawFlightData) -> io::Result<()> {
     writeln!(
         stream,
-        "{},{},{},{},{},{}",
+        "{},{},{},{},{},{},{}",
+        data.dt,
         raw_to_g(data.ac_x),
         raw_to_g(data.ac_y),
         raw_to_g(data.ac_z),
@@ -224,7 +220,7 @@ fn write_data(stream: &mut impl Write) {
                         );
                     }
 
-                    write_csv(stream, time, data).unwrap();
+                    write_csv(stream, data).unwrap();
                     data_point_buffer.clear();
                 } else {
                     data_point_buffer.push(data);
