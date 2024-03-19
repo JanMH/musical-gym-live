@@ -8,7 +8,7 @@ pub(crate) fn log_errors<S, E: Debug>(result: Result<S, E>) {
 }
 use crate::collect::FlightDataReadError;
 
-use crate::collect::write_csv;
+use crate::collect::RawFlightData;
 
 use std::time::SystemTime;
 
@@ -16,9 +16,7 @@ use std::time::Instant;
 
 use crate::collect::FlightConnector;
 
-use std::io::Write;
-
-pub(crate) fn write_data(stream: &mut impl Write) {
+pub(crate) fn run_model<F: FnMut(RawFlightData)>(mut f: F) {
     let mut cont;
     loop {
         match FlightConnector::new("/dev/ttyUSB0") {
@@ -51,7 +49,7 @@ pub(crate) fn write_data(stream: &mut impl Write) {
                         );
                     }
 
-                    write_csv(stream, data).unwrap();
+                    f(data);
                     data_point_buffer.clear();
                 } else {
                     data_point_buffer.push(data);
